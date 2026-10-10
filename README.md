@@ -48,6 +48,12 @@ Stack de **observabilidade** completa, do zero, rodando com um único `docker co
                     └──────────────────────────────────────────────┘
 ```
 
+## 📊 Dashboard (Grafana)
+
+Dashboard provisionado **como código**, com os SLIs do serviço (taxa de requisições, taxa de erro 5xx, latência P95 e targets up):
+
+![Dashboard SLI/SLO no Grafana](docs/images/grafana-dashboard.png)
+
 ## 🚀 Como rodar
 
 ```bash
