@@ -38,8 +38,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate prometheus.yml and rules
-        uses: docker://prom/prometheus:v2.54.1
-        with:
-          args: >-
-            promtool check config /github/workspace/prometheus/prometheus.yml
+      - name: promtool check config
+        working-directory: .
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/prometheus:/etc/prometheus" \
+            --entrypoint promtool \
+            prom/prometheus:v2.54.1 \
+            check config /etc/prometheus/prometheus.yml
