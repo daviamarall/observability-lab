@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Ambiente
+.env
+
+# Grafana runtime
+grafana/data/
+
+# IDEs / SO
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,49 @@
+groups:
+  - name: slo.rules
+    rules:
+      # --- Recording rules: pre-compute SLIs ---
+      - record: job:sli_error_ratio:rate5m
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+          sum(rate(http_requests_total[5m]))
+
+      - record: job:sli_latency_p95:rate5m
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le)
+          )
+
+      # --- Alerts driven by SLOs ---
+      - alert: HighErrorRate
+        expr: job:sli_error_ratio:rate5m > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          slo: availability
+        annotations:
+          summary: "Taxa de erro 5xx acima de 5% (SLO de disponibilidade em risco)"
+          description: "A taxa de erro está em {{ $value | humanizePercentage }} nos últimos 5m."
+          runbook: "docs/RUNBOOK.md#high-error-rate"
+
+      - alert: HighLatencyP95
+        expr: job:sli_latency_p95:rate5m > 0.3
+        for: 5m
+        labels:
+          severity: warning
+          slo: latency
+        annotations:
+          summary: "Latência P95 acima de 300ms (SLO de latência em risco)"
+          description: "P95 = {{ $value }}s nos últimos 5m."
+          runbook: "docs/RUNBOOK.md#high-latency-p95"
+
+      - alert: AppDown
+        expr: up{job="observability-lab-app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Aplicação fora do ar (alvo do Prometheus inacessível)"
+          description: "O target do job observability-lab-app está down há mais de 1 minuto."
+          runbook: "docs/RUNBOOK.md#app-down"
